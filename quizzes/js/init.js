@@ -169,3 +169,24 @@ function IsSaveSelectQuestion() {
 
     return true;
 }
+
+function UpdateOutput() {
+    var result = _.clone(root);
+
+    var buffer = [];
+    buffer.push(result);
+
+    while (buffer.length > 0) {
+        var temp = buffer.shift();
+
+        ClearItemOfD3(temp);
+
+        if (typeof temp.children != "undefined") {
+            for (var i = 0; i < temp.children.length; i++) {
+                buffer.push(temp.children[i]);
+            }
+        }
+    }
+
+    $("#json_questions").attr("value", JSON.stringify(result));
+}
