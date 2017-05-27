@@ -109,6 +109,24 @@ $json   = isset($values['json_questions']) ? $values['json_questions'][0] : "{ '
 <script>
     json_obj = <?= $json ?>;
 </script>
+<div class="row">
+    <select id="select_copy_from_old">
+        <option value="" disabled selected>Select a post to copy from</option>
+<?php
+$wp_query = new \WP_Query(array('post_type' => 'quizzes'));
+while ($wp_query->have_posts()) {
+    $wp_query->the_post();
+
+    $the_id = \get_the_ID();
+    if ($post->ID != $the_id) {
+        echo(sprintf('<option value="%s">%s - #%s</option>', $the_id, \get_the_title(), $the_id));
+    }
+}
+wp_reset_postdata();
+?>
+    </select>
+    <input id="copy_from_old" type="button" class="button tagadd" value="Copy from existing" />
+</div>
 <div id="target_tree"></div>
 <div id="target_tree_menu">
     <input id="target_add" class="button tagadd" value="Add new answer" type="button" />
