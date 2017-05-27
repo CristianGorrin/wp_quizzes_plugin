@@ -1,5 +1,137 @@
 function Reder() {
-    
+     ClearId();
+
+    var cach_transform = "";
+    if (typeof $("#tree>g").attr("transform") != 'undefined') {
+        cach_transform = $("#tree>g").attr("transform");
+    }
+
+    d3.select("#tree").remove();
+
+    var i = 0;
+
+    var tree = d3.layout.tree().size([500, 1000]);
+
+    var diagonal = d3.svg.diagonal()
+        .projection(function (d) { return [d.y, d.x]; });
+
+    var x = 85, y = 0, z = 1;
+    if (cach_transform != "") {
+        var temp_trabsform = cach_transform.split(" ");
+        for (var i = 0; i < temp_trabsform.length; i++) {
+            var temp_string = temp_trabsform[i].split("(");
+
+            if (temp_string[0] == "translate") {
+                temp_string[1] = temp_string[1].substring(0, temp_string[1].length - 1);
+
+                var temp = temp_string[1].split(",");
+                x = parseFloat(temp[0]);
+                y = parseFloat(temp[1]);
+            } else if (temp_string[0] == "scale") {
+                z = parseFloat(temp_string[1].substring(0, temp_string[1].length - 1))
+            }
+        }
+    }
+
+    var svg = d3.select("#target_tree").append("svg")
+        .attr("id", "tree")
+        .attr("width", "100%")
+        .attr("height", 500)
+        .call(d3.behavior.zoom()
+            .on("zoom", function () {
+                svg.attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")")
+            })
+            .translate([x, y])
+            .scale(z)
+        )
+        .append("g");
+
+    update(root);
+    function update(source) {
+        // Compute the new tree layout.
+        var nodes = tree.nodes(root).reverse(),
+            links = tree.links(nodes);
+
+        // Normalize for fixed-depth.
+        nodes.forEach(function (d) { d.y = d.depth * 180; });
+
+        // Declare the nodes…
+        var node = svg.selectAll("g.node")
+            .data(nodes, function (d) { return d.id || (d.id = ++i); });
+
+        // Enter the nodes.
+        var nodeEnter = node.enter().append("g")
+            .attr("class", "node")
+            .on("click", function ClickItemOnTree(d) {
+                if (!IsSaveSelectQuestion()) {
+                    if (!confirm('You have unsaved changes on this question, do you want to discard them?')) {
+                        return;
+                    }
+                }
+
+                if (typeof root.children != "undefined") {
+                    var children = [];
+                    root._selected = false;
+                    for (var i = 0; i < root.children.length; i++) {
+                        children.push(root.children[i]);
+                    }
+
+                    while (children.length > 0) {
+                        var temp = children.shift();
+                        temp._selected = false;
+
+                        if (temp.children) {
+                            for (var i = 0; i < temp.children.length; i++) {
+                                children.push(temp.children[i]);
+                            }
+                        }
+                    }
+                }
+
+                d._selected = true;
+                selected = d;
+                Reder();
+
+                SetSelectQuestion();
+            })
+            .attr("transform", function (d) {
+                return "translate(" + d.y + "," + d.x + ")";
+            });
+
+        nodeEnter.append("circle")
+            .attr("r", 15)
+            .style("fill", function (d) {
+                if (d._selected) {
+                    return "#ccc";
+                } else {
+                    return "#fff";
+                }
+            });
+
+        nodeEnter.append("text")
+            .attr("x", function (d) {
+                return d.children || d._children ? -18 : 18;
+            })
+            .attr("dy", ".35em")
+            .attr("text-anchor", function (d) {
+                return d.children || d._children ? "end" : "start";
+            })
+            .text(function (d) { return d.name; })
+            .style("fill-opacity", 1);
+
+        // Declare the links…
+        var link = svg.selectAll("path.link")
+            .data(links, function (d) { return d.target.id; });
+
+        // Enter the links.
+        link.enter().insert("path", "g")
+            .attr("class", "link")
+            .attr("d", diagonal);
+    }
+
+    if (cach_transform != "") {
+        $("#tree>g").attr("transform", cach_transform);
+    }
 }
 
 function ClearId() {
