@@ -21,7 +21,76 @@ function SetupEnqueue() {
 add_action('admin_enqueue_scripts', '\\quizzes\\SetupEnqueue');
 
 function SetCustomPostType() {
+    $singular = 'Quiz';
+    $plural   = 'Quizzes';
 
+    //https://developer.wordpress.org/plugins/users/roles-and-capabilities/
+    $capabilities = array(
+
+    );
+
+    $labels = array(
+        'name'               => $plural,
+        'singular_name'      => $singular,
+        'add_name'           => 'Add new',
+        'add_new_item'       => 'Add new ' . $singular,
+        'edit'               => 'edit',
+        'edit_item'          => 'Edit ' . $singular,
+        'new_item'           => 'New ' . $singular,
+        'view'               => 'View ' . $singular,
+        'view_item'          => 'View ' . $singular,
+        'search_term'        => 'Search '. $plural,
+        'parent'             => 'Parent ' . $singular,
+        'not_found'          => 'No ' . $plural . ' found',
+        'not_found_in_trash' => 'No ' . $plural . ' in Trash'
+    );
+
+    register_post_type(
+        'quizzes',
+        array(
+            'labels'              => $labels,
+		    'public'              => true,
+		    'publicly_queryable'  => true,
+		    'exclude_from_search' => false,
+		    'show_ui'             => true,
+		    'show_in_menu'        => true,
+                    'show_in_admin_bar'   => true,
+		    'has_archive'         => true,
+		    'rewrite'             => true,
+		    'query_var'           => true,
+            'menu_icon'           => 'dashicons-star-filled', //Find in https://developer.wordpress.org/resource/dashicons
+            'menu_position'       => 6,
+            'can_export'          => true,
+            'delete_with_user'    => false,
+            'capability_type'     => 'post',
+            'capabilities'        => $capabilities,
+            'rewrite'             => array(
+                'slug' => 'Quizzes',
+                'with_front' => true,
+                'pages'      => true,
+                'feeds'      => true
+            ),
+            'supports' => array(
+                'title',
+                'author',
+                'thumbnail',
+                'custom-fields',
+                'excerpt'
+            )
+        )
+    );
+
+    register_taxonomy(
+        'tags_quizzes',
+        'quizzes',
+        array(
+            'hierarchical'  => false,
+            'label'         => 'Categorize',
+            'singular_name' => 'Categorize',
+            'rewrite'       => true,
+            'query_var'     => true
+        )
+    );
 }
 add_action('init', '\\quizzes\\SetCustomPostType');
 
