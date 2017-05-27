@@ -60,3 +60,44 @@ function RemoveSelected() {
     Reder();
     return true;
 }
+
+function ResetZoomAndPan() {
+    $("#tree>g").attr("transform", "translate(85,0) scale(1)");
+}
+
+function SetSelectQuestion() {
+    var table = $('#answers_table');
+    table.empty();
+
+    $('#select_title')[0].value = selected.name;
+
+    if (typeof selected.body != "undefined") {
+        $('#body_text')[0].value = selected.body;
+    } else {
+        $('#body_text')[0].value = '';
+    }
+
+    if (typeof selected.item != "undefined") {
+        $('#uri_item').html('Name: ' + selected.item.name + ' - Type: ' + selected.item.type + ' Url: ' + selected.item.url);
+    } else {
+        $('#uri_item').html('');
+    }
+
+    if (typeof selected.children != "undefined") {
+        table.append('<tr><th>Quiz name</th><th></th><th>Anser text</th><th>Score</th></tr>');
+        for (var i = 0; i < selected.children.length; i++) {
+            table.append('<tr><td>' + selected.children[i].name +
+                '</td><td>:</td><td><input id="answers_table_' + i +
+                '" autocomplete="off" type="text" placeholder="Answer text" /></td>' +
+                '<td><input type="number" id="score_table_' + i + '"></td>' + '</tr>');
+
+            if (typeof selected.children[i].answer_text != "undefined") {
+                $("#answers_table_" + i)[0].value = selected.children[i].answer_text;
+            }
+
+            if (typeof selected.children[i].score != 'undefined') {
+                $('#score_table_' + i)[0].value = selected.children[i].score;
+            }
+        }
+    }
+}
