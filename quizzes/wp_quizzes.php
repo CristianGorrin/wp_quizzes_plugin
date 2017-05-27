@@ -100,7 +100,21 @@ function MetaBoxAdd() {
 add_action('add_meta_boxes', '\\quizzes\\MetaBoxAdd');
 
 function SaveMetaBox($post_id) {
+    if (!isset($_POST['quizzes_nonce'])) {
+        return;
+    }
 
+	$is_autosave = wp_is_post_autosave($post_id);
+    $is_revision = wp_is_post_revision($post_id);
+    $is_valid_nonce = wp_verify_nonce($_POST['quizzes_nonce'], basename(__FILE__)) ? 'true' : 'false';
+
+    if ($is_autosave || $is_revision || !$is_valid_nonce) {
+        return;
+    }
+
+    if (isset($_POST['json_questions'])) {
+        update_post_meta($post_id, 'json_questions', $_POST['json_questions']);
+    }
 }
 add_action('save_post', '\\quizzes\\SaveMetaBox');
 
