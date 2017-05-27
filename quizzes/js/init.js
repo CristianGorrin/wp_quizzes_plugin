@@ -225,3 +225,114 @@ function Init() {
     SetSelectQuestion();
     UpdateOutput();
 }
+
+$(document).ready(function () {
+    root = json_obj;
+    Init();
+
+    var frame = wp.media({
+        title: "Select an item",
+        button: { text: "Add to question" },
+        frame: 'select',
+        multiple: false
+    });
+
+    frame.on("select", function () {
+        var item = frame.state().get('selection').toJSON();
+        selected.item = { name: item[0].name, type: item[0].type, url: item[0].url };
+        $('#uri_item').html('Name: ' + selected.item.name + ' - Type: ' + selected.item.type + ' Url: ' + selected.item.url);
+        UpdateOutput();
+    });
+
+    $(".set_custom_item").on("click", function (e) {
+        e.preventDefault();
+
+        frame.open();
+    });
+    
+    $('#target_add').click(function(e) {
+        e.preventDefault();
+
+        var result = prompt("Please enter the new answers title", "");
+
+        if (result != null) {
+            AddItemToSelected(result);
+        }
+
+        UpdateOutput();
+    });
+
+    $('#target_delete').click(function(e) {
+        e.preventDefault();
+
+        if (selected == root) {
+            alert('Can\'t remove the root element');
+        } else {
+            if (confirm('Are you sure you want to delete (' + selected.name + ') the selected question?')) {
+                if (!RemoveSelected()) {
+                    alert('Can\'t remove the this element');
+                }
+            }
+        }
+
+        UpdateOutput();
+    });
+
+    $('#target_clear').click(function(e) {
+        e.preventDefault();
+
+        if (confirm('Are you sure you want to remove all questions?')) {
+            root           = { "name": "root" };
+            root._selected = true;
+            selected       = root;
+
+            SetSelectQuestion();
+            Reder();
+        }
+
+        UpdateOutput();
+    });
+
+    $('#target_reset').click(function(e) {
+        e.preventDefault();
+
+        ResetZoomAndPan();
+        Reder();
+    });
+
+    $('#select_update').click(function (e) {
+        e.preventDefault();
+
+        UpdateSelectQuestion();
+        UpdateOutput();
+    });
+
+    $('#clear_custom_item').click(function (e) {
+        e.preventDefault();
+
+        delete selected.item;
+        $('#uri_item').html('');
+        UpdateOutput();
+    });
+
+    $('#copy_from_old').click(function (e) {
+        e.preventDefault();
+
+        var target = $('#select_copy_from_old').val();
+        if (target != null) {
+            if (confirm('Are you sure you want to copy the questions (the current questions will be lost)?')) {
+                $.ajax({
+                    type: "POST",
+                    url: "../../quizzes/get/?id=" + target,
+                    dataType: "json",
+                    success: function (response) {
+                        if (typeof response.questions != 'undefined') {
+                            root = response.questions;
+                            Init();
+                        }
+                    }
+                });
+            }
+        }
+    });
+});
