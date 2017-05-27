@@ -23,3 +23,19 @@ function ClearId() {
         }
     }
 }
+
+function AddItemToSelected(name) {
+    if (!selected.children) {
+        selected.children = [];
+    }
+
+    selected.children.push({ "name": name });
+
+    Reder();
+
+    var table = $('#answers_table');
+    var next_id = table.find('tr').length - 1;
+    table.append('<tr><td>' + name + '</td><td>:</td><td><input id="answers_table_' +
+        next_id + '" autocomplete="off" type="text" placeholder="Answer text" /></td>' +
+        '<td><input type="number" id="score_table_' + next_id + '"></td></tr>');
+}
