@@ -95,9 +95,62 @@ function SetCustomPostType() {
 add_action('init', '\\quizzes\\SetCustomPostType');
 
 function MetaBoxAdd() {
-
+add_meta_box('questions-meta-box', 'Questions', '\\quizzes\\MetaBoxPrint', 'quizzes', 'normal', 'default');
 }
 add_action('add_meta_boxes', '\\quizzes\\MetaBoxAdd');
+
+function MetaBoxPrint($post) {
+wp_nonce_field(basename(__FILE__), 'quizzes_nonce');
+
+$values = get_post_custom($post->ID);
+$json   = isset($values['json_questions']) ? $values['json_questions'][0] : "{ 'name': 'root' }";
+?>
+<input id="json_questions" name="json_questions" type="hidden" value="" />
+<script>
+    json_obj = <?= $json ?>;
+</script>
+<div id="target_tree"></div>
+<div id="target_tree_menu">
+    <input id="target_add" class="button tagadd" value="Add new answer" type="button" />
+    <input id="target_delete" class="button tagadd" value="Delete" type="button" />
+    <input id="target_clear" class="button tagadd" value="Clear" type="button" />
+    <div class="float_right">
+        <input id="target_reset" class="button tagadd" value="Reset zoom and pan" type="button" />
+    </div>
+</div>
+<div class="line"></div>
+<div id="target_tree_select">
+    <div class="row">
+        <h2>Select question</h2>
+    </div>
+
+    <div class="row">
+        <label class="screen-reader-text" id="select_title_label" for="select_title">Question title</label>
+        <input name="select_title" size="30" value="" id="select_title" spellcheck="true" autocomplete="off" type="text" placeholder="Enter question title" />
+        <?php wp_enqueue_media() ?> 
+        <button class="set_custom_item button">Add an media</button>
+        <button id="clear_custom_item" class="button">Remove media</button>
+    </div>
+
+    <div class="row">
+        <span>Media </span>
+        <span id="uri_item"></span>
+    </div>
+
+    <div class="row">
+        <textarea id="body_text"></textarea>
+    </div>
+
+    <div class="row">
+        <h3>Answers:</h3>
+        <table id="answers_table">
+           
+        </table>
+        <input id="select_update" class="button tagadd" value="Update question" type="button" />
+    </div>
+</div>
+<?php
+}
 
 function SaveMetaBox($post_id) {
     if (!isset($_POST['quizzes_nonce'])) {
