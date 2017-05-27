@@ -119,3 +119,53 @@ function UpdateSelectQuestion() {
         }
     }
 }
+function IsSaveSelectQuestion() {
+    //name
+    if (typeof selected.name != "undefined") {
+        if (selected.name != $('#select_title')[0].value) {
+            return false;
+        }
+    } else {
+        if ($('#select_title')[0].value != '') {
+            return false;
+        }
+    }
+
+    //body
+    if (typeof selected.body != "undefined") {
+        if (selected.body != $('#body_text')[0].value) {
+            return false;
+        }
+    } else {
+        if ($('#body_text')[0].value != '') {
+            return false;
+        }
+    }
+
+    //children
+    if (typeof selected.children != "undefined") {
+        for (var i = 0; i < selected.children.length; i++) {
+            if (typeof selected.children[i].answer_text != "undefined") {
+                if (selected.children[i].answer_text != $('#answers_table_' + i)[0].value) {
+                    return false;
+                }
+            } else {
+                if ($('#answers_table_' + i)[0].value != '') {
+                    return false;
+                }
+            }
+
+            if (typeof selected.children[i].score != 'undefined') {
+                if (selected.children[i].score.toString() != $('#score_table_' + i)[0].value) {
+                    return false;
+                }
+            } else {
+                if ($('#score_table_' + i)[0].value != '') {
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
