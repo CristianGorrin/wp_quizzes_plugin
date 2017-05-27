@@ -1,3 +1,7 @@
+function Reder() {
+    
+}
+
 function ClearId() {
     var children = [];
     delete root.id;
