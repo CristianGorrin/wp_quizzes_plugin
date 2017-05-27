@@ -1,0 +1,56 @@
+.node circle {
+    fill: #fff;
+    stroke: steelblue;
+    stroke-width: 3px;
+}
+
+.node text {
+    font: 12px sans-serif;
+}
+
+.link {
+    fill: none;
+    stroke: #ccc;
+    stroke-width: 2px;
+}
+
+.row {
+    display: block;
+}
+
+.row>label {
+    width: 100%;
+}
+
+#target_tree {
+
+}
+
+.float_right {
+    float: right;
+}
+
+#target_tree_menu {
+    margin-bottom: 10px;
+}
+
+.line {
+    background-color: rgba(211,211,211, 0.8);
+    height: 1px;
+    margin-bottom: 10px;
+}
+
+#answers_table>tr>td:first-child {
+    text-align: right;
+}
+
+#custom_images {
+    width: 200px;
+    height: 200px;
+}
+
+#body_text {
+    height: 200px;
+    width: 100%;
+}
+
