@@ -39,3 +39,24 @@ function AddItemToSelected(name) {
         next_id + '" autocomplete="off" type="text" placeholder="Answer text" /></td>' +
         '<td><input type="number" id="score_table_' + next_id + '"></td></tr>');
 }
+
+function RemoveSelected() {
+    if (typeof selected.parent == "undefined") {
+        return false;
+    }
+
+    var delete_id = selected.id;
+    selected = selected.parent;
+    var new_array = [];
+    for (var i = 0; i < selected.children.length; i++) {
+        if (selected.children[i].id != delete_id) {
+            new_array.push(selected.children[i]);
+        }
+    }
+
+    selected.children = new_array;
+    selected._selected = true;
+
+    Reder();
+    return true;
+}
