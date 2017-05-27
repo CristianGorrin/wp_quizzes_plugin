@@ -216,3 +216,12 @@ function ClearItemOfD3(item) {
         delete item.parent;
     }
 }
+function Init() {
+    root._selected = true;
+    selected       = root;
+
+    Reder();
+    ResetZoomAndPan();
+    SetSelectQuestion();
+    UpdateOutput();
+}
