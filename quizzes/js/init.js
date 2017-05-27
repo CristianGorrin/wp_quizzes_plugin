@@ -190,3 +190,29 @@ function UpdateOutput() {
 
     $("#json_questions").attr("value", JSON.stringify(result));
 }
+
+function ClearItemOfD3(item) {
+    if (typeof item._selected != "undefined") {
+        delete item._selected;
+    }
+
+    if (typeof item.depth != "undefined") {
+        delete item.depth;
+    }
+
+    if (typeof item.x != "undefined") {
+        delete item.x;
+    }
+
+    if (typeof item.y != "undefined") {
+        delete item.y;
+    }
+
+    if (typeof item.id != "undefined") {
+        delete item.id;
+    }
+
+    if (typeof item.parent != "undefined") {
+        delete item.parent;
+    }
+}
