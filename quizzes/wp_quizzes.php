@@ -105,6 +105,153 @@ function SaveMetaBox($post_id) {
 add_action('save_post', '\\quizzes\\SaveMetaBox');
 
 function Endpoint() {
+$url = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+    $uri = explode('?', substr($url, strlen(get_site_url())));
 
+    if (count($uri) > 2) return;
+
+    $target = strtolower($uri[0]);
+    $query  = array();
+
+    if (count($uri) == 2) {
+        foreach (explode('&', $uri[1]) as $item) {
+            $temp = explode('=', $item);
+
+            if (count($temp) != 2) continue;
+
+            $query[strtolower($temp[0])] = $temp[1];
+        }
+    }
+
+    global $wp_query;
+    $result = null;
+
+    if ($target == '/quizzes/list/') {
+        $result = array();
+
+        if (isset($query['type'])) {
+            $result = array();
+            $type   = strtolower($query['type']);
+
+            if ($type == 'quizzes') {
+                $result['type'] = 'quizzes';
+
+                $args = array(
+                    'post_type'   => 'quizzes',
+                    'post_status' => 'publish'
+                );
+
+                if (isset($query['cat'])) {
+                    $args['tags_quizzes'] = $query['cat'];
+                }
+
+                if (isset($query['aut'])) {
+                    $args['author_name'] = $query['aut'];
+                }
+
+                $wp_query = new \WP_Query($args);
+                $result['data'] = array();
+                while ($wp_query->have_posts()) {
+                    $wp_query->the_post();
+
+                    $cat = array();
+                    $cats = get_the_terms(\get_the_ID(), 'tags_quizzes');
+                    if (is_array($cats)) {
+                        foreach ($cats as $item) {
+                            array_push($cat, $item->name);
+                        }
+                    }
+
+                    array_push($result['data'], array(
+                        'id'         => \get_the_ID(),
+                        'title'      => get_the_title(),
+                        'excerpt'    => get_the_excerpt(),
+                        'thumbnail'  => get_the_post_thumbnail_url(),
+                        'categorize' => $cat,
+                        'author'     => get_the_author_meta('display_name'),
+                    ));
+                }
+
+                wp_reset_postdata();
+            } else if ($type == 'categorize') {
+                $result['type'] = 'categorize';
+                $result['data'] = array();
+
+                $hide_empty = false;
+                if (isset($query['hide_empty'])) {
+                    if ($query['hide_empty'] == '1') {
+                        $hide_empty = true;
+                    }
+                }
+
+                $temp = get_terms('tags_quizzes', array('hide_empty' => $hide_empty));
+                if (is_array($temp)) {
+                    foreach ($temp as $item) {
+                        array_push($result['data'], array(
+                            'name'        => $item->name,
+                            'description' => $item->description,
+                            'count'       => $item->count
+                        ));
+                    }
+                }
+            } else if ($type == 'author') {
+                $result['type'] = 'author';
+                $result['data'] = array();
+
+                global $wpdb;
+                $authors = $wpdb->get_results("select distinct $wpdb->users.id, $wpdb->users.display_name from wordpress.$wpdb->users, $wpdb->posts where $wpdb->users.id = $wpdb->posts.post_author order by $wpdb->users.display_name");
+                foreach($authors as $author) {
+                    array_push($result['data'], $author);
+                }
+            }
+        }
+    } else if ($target == '/quizzes/get/') {
+        // use /quizzes/get/?id={the id}
+        $result = array();
+
+        if (isset($query['id'])) {
+            if (is_numeric($query['id'])) {
+                $args = array(
+                    'post_type' => 'quizzes',
+                    'p'         => $query['id']
+                );
+
+                $wp_query = new \WP_Query($args);
+
+                while ($wp_query->have_posts()) {
+                    $wp_query->the_post();
+
+                    $cat = array();
+                    $cats = get_the_terms(\get_the_ID(), 'tags_quizzes');
+                    if (is_array($cats)) {
+                        foreach ($cats as $item) {
+                            array_push($cat, $item->name);
+                        }
+                    }
+
+                    $q = array();
+                    $temp = get_post_meta($query['id'], 'json_questions');
+                    if (isset($temp[0])) {
+                        $q = json_decode($temp[0]);
+                    }
+
+                    $result = array(
+                        'title'      => get_the_title(),
+                        'excerpt'    => get_the_excerpt(),
+                        'thumbnail'  => get_the_post_thumbnail_url(),
+                        'categorize' => $cat,
+                        'author'     => get_the_author_meta('display_name'),
+                        'questions'  => $q
+                    );
+                }
+
+                wp_reset_postdata();
+            }
+        }
+    }
+
+    if (is_array($result)) {
+        wp_send_json($result);
+    }
 }
 add_action('template_redirect', '\\quizzes\\Endpoint');
