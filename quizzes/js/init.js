@@ -101,3 +101,21 @@ function SetSelectQuestion() {
         }
     }
 }
+
+function UpdateSelectQuestion() {
+    selected.name    = $('#select_title')[0].value;
+    selected.body    = $('#body_text')[0].value;
+
+    if (typeof selected.children != "undefined") {
+        for (var i = 0; i < selected.children.length; i++) {
+            if (typeof $('#answers_table_' + i)[0].value != 'undefined') {
+                selected.children[i].answer_text = $('#answers_table_' + i)[0].value;
+            }
+
+            var score = $('#score_table_' + i)[0].value;
+            if ($.isNumeric(score)) {
+                selected.children[i].score = parseInt(score);
+            }
+        }
+    }
+}
