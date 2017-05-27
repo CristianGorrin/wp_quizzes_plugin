@@ -19,3 +19,23 @@ function SetupEnqueue() {
     }
 }
 add_action('admin_enqueue_scripts', '\\quizzes\\SetupEnqueue');
+
+function SetCustomPostType() {
+
+}
+add_action('init', '\\quizzes\\SetCustomPostType');
+
+function MetaBoxAdd() {
+
+}
+add_action('add_meta_boxes', '\\quizzes\\MetaBoxAdd');
+
+function SaveMetaBox($post_id) {
+
+}
+add_action('save_post', '\\quizzes\\SaveMetaBox');
+
+function Endpoint() {
+
+}
+add_action('template_redirect', '\\quizzes\\Endpoint');
