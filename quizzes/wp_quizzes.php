@@ -190,8 +190,24 @@ function SaveMetaBox($post_id) {
 add_action('save_post', '\\quizzes\\SaveMetaBox');
 
 function Endpoint() {
-$url = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-    $uri = explode('?', substr($url, strlen(get_site_url())));
+      if (isset($_GET['action'])) {
+      $uri = explode('perform=', $_SERVER['REQUEST_URI']);
+      array_shift($uri);
+      $uri = explode("&", $uri[0]);
+      $uri = array(
+        array_shift($uri),
+        implode("&", $uri)
+      );
+      $querry = explode("?", $uri[0]);
+      if (isset($querry[1])) $uri = $querry;
+      // http://localhost/wordpress/wp-admin/admin-ajax.php?action=Endpoint&perform=/quizzes/list/&type=quizzes&filter=aaa
+      // http://localhost/wordpress/wp-admin/admin-ajax.php?action=Endpoint&perform=/quizzes/get/?id=388
+    } else {
+      $url = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+      $uri = explode('?', substr($url, strlen(get_site_url())));
+      // http://localhost/wordpress/quizzes/list/?type=quizzes&filter=aaa
+      // http://localhost/quizzes/get/?id=20
+    }
 
     if (count($uri) > 2) return;
 
@@ -341,3 +357,4 @@ $url = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['S
     }
 }
 add_action('template_redirect', '\\quizzes\\Endpoint');
+add_action('wp_ajax_nopriv_Endpoint', 'quizzes\\Endpoint');
