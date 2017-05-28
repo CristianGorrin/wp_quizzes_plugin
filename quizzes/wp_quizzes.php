@@ -190,8 +190,6 @@ function SaveMetaBox($post_id) {
 add_action('save_post', '\\quizzes\\SaveMetaBox');
 
 function Endpoint() {
-http_response_code(200);
-
 $url = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
     $uri = explode('?', substr($url, strlen(get_site_url())));
 
@@ -338,6 +336,7 @@ $url = ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') || $_SERVER['S
     }
 
     if (is_array($result)) {
+    	http_response_code(200);
         wp_send_json($result);
     }
 }
